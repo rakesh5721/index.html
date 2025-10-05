@@ -1,0 +1,169 @@
+<script>
+    // Quiz data (Aztec Testnet Questions)
+    const quizData = [
+        {
+            question: "Aztec Testnet ka main purpose kya hai?",
+            options: [
+                "Gaming applications launch karna",
+                "Privacy aur decentralization features test karna",
+                "Ethereum ke gas fees kam karna",
+                "Stablecoin launch karna"
+            ],
+            correct: 1
+        },
+        {
+            question: "Aztec Testnet me account create karne ke liye kaunsa command use hota hai?",
+            options: [
+                "aztec-wallet create-account",
+                "aztec start-account",
+                "npm create account",
+                "git init account"
+            ],
+            correct: 0
+        },
+        {
+            question: "Sandbox aur Testnet me sabse bada difference kya hai?",
+            options: [
+                "Sandbox me block time 1 second hota hai, Testnet me ~36 sec",
+                "Sandbox me transaction fees high hoti hai",
+                "Testnet me privacy disable hoti hai",
+                "Sandbox aur Testnet me koi difference nahi hai"
+            ],
+            correct: 0
+        },
+        {
+            question: "Aztec me Zero-Knowledge Proofs ka use kis liye hota hai?",
+            options: [
+                "Website design karne ke liye",
+                "User data ko private rakhne ke liye",
+                "Block size increase karne ke liye",
+                "Governance tokens mint karne ke liye"
+            ],
+            correct: 1
+        },
+        {
+            question: "Aztec Testnet me validators ka role kya hai?",
+            options: [
+                "Game khelna",
+                "Meme banakar post karna",
+                "Blocks propose karna aur governance me vote karna",
+                "Only transactions ko private karna"
+            ],
+            correct: 2
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedOption = -1;
+
+    function startQuiz() {
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        document.getElementById('total-questions').textContent = quizData.length;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestion >= quizData.length) {
+            showResults();
+            return;
+        }
+
+        const question = quizData[currentQuestion];
+        document.getElementById('current-question').textContent = currentQuestion + 1;
+        document.getElementById('question-text').textContent = question.question;
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        question.options.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'option';
+            optionElement.textContent = option;
+            optionElement.onclick = () => selectOption(index);
+            optionsContainer.appendChild(optionElement);
+        });
+
+        const progress = ((currentQuestion) / quizData.length) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+
+        selectedOption = -1;
+        document.getElementById('next-btn').disabled = true;
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('feedback').className = 'feedback';
+    }
+
+    function selectOption(index) {
+        if (selectedOption !== -1) return;
+
+        selectedOption = index;
+        const options = document.querySelectorAll('.option');
+        const question = quizData[currentQuestion];
+        
+        options.forEach((option, i) => {
+            if (i === question.correct) {
+                option.classList.add('correct');
+            } else if (i === selectedOption && i !== question.correct) {
+                option.classList.add('incorrect');
+            }
+            option.style.pointerEvents = 'none';
+        });
+
+        const feedback = document.getElementById('feedback');
+        if (selectedOption === question.correct) {
+            score++;
+            feedback.textContent = '🎉 Correct! Well done!';
+            feedback.className = 'feedback correct';
+        } else {
+            feedback.textContent = `❌ Incorrect. Correct answer: ${question.options[question.correct]}`;
+            feedback.className = 'feedback incorrect';
+        }
+        
+        feedback.style.display = 'block';
+        document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        setTimeout(loadQuestion, 300);
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').classList.remove('active');
+        document.getElementById('results-screen').classList.add('active');
+        
+        const percentage = Math.round((score / quizData.length) * 100);
+        const scoreCircle = document.getElementById('score-circle');
+        
+        document.getElementById('score-percentage').textContent = percentage + '%';
+        document.getElementById('correct-count').textContent = score;
+        document.getElementById('incorrect-count').textContent = quizData.length - score;
+        document.getElementById('total-count').textContent = quizData.length;
+        
+        let message = '';
+        if (percentage >= 80) {
+            scoreCircle.className = 'score-circle excellent';
+            message = '🏆 Excellent! You\'re a quiz master!';
+        } else if (percentage >= 60) {
+            scoreCircle.className = 'score-circle good';
+            message = '👏 Good job! You did well!';
+        } else if (percentage >= 40) {
+            scoreCircle.className = 'score-circle average';
+            message = '👍 Not bad! Keep practicing!';
+        } else {
+            scoreCircle.className = 'score-circle poor';
+            message = '💪 Don\'t give up! Try again!';
+        }
+        
+        document.getElementById('results-message').textContent = message;
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        selectedOption = -1;
+        document.getElementById('results-screen').classList.remove('active');
+        document.getElementById('start-screen').classList.add('active');
+    }
+</script>
